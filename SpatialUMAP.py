@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 from scipy.spatial import ConvexHull
@@ -76,7 +77,7 @@ class SpatialUMAP:
 
     def process_region_counts(self, region_id):
         # get indices of cells from this region
-        idx = np.where(region_id == self.cells['TMA_core_2'])[0]
+        idx = np.where(region_id == self.cells['TMA_core_id'])[0]
         # get counts if there are cells in region
         if len(idx) > 0:
             # partial for picklable fn for pool for process with data from this region
@@ -89,7 +90,7 @@ class SpatialUMAP:
 
     def process_region_areas(self, region_id, area_threshold, plots_directory=None):
         # get indices of cells from this region
-        idx = np.where(region_id == self.cells['TMA_core_2'])[0]
+        idx = np.where(region_id == self.cells['TMA_core_id'])[0]
         # get counts if cells are in region
         if len(idx) > 0:
             # fit ellipse from point cloud
@@ -128,17 +129,18 @@ class SpatialUMAP:
                 plt.close(f)
                 del f
 
-    def get_counts(self, pool_size=2, pickle_file=None):
+    def get_counts(self, pool_size=2, save_file=None):
         self.clear_counts()
         self.start_pool(pool_size)
         for region_id in tqdm(self.region_ids):
             self.process_region_counts(region_id)
         self.close_pool()
 
-        if pickle_file is not None:
-            pickle.dump(self.counts, open(pickle_file, 'wb'))
+        if save_file is not None:
+            column_names = ['%s-%s' % (cell_type, distance) for distance in self.dist_bin_um for cell_type in self.cell_labels.columns.values]
+            pd.DataFrame(self.counts.reshape((self.counts.shape[0], -1)), columns=column_names).to_csv(save_file, index=False)
 
-    def get_areas(self, area_threshold, pool_size=2, pickle_file=None, tissue_mask='points', plots_directory=None):
+    def get_areas(self, area_threshold, pool_size=2, save_file=None, plots_directory=None):
         self.clear_areas()
         self.cells['area_filter'] = False
         self.start_pool(pool_size)
@@ -146,11 +148,11 @@ class SpatialUMAP:
             self.process_region_areas(region_id, area_threshold=area_threshold, plots_directory=plots_directory)
         self.close_pool()
 
-        if pickle_file is not None:
-            pickle.dump(self.areas, open(pickle_file, 'wb'))
+        if save_file is not None:
+            pd.DataFrame(self.areas, columns=self.dist_bin_um).to_csv('data/csv/areas.csv', index=False)
 
     def set_train_test(self, n, seed=None):
-        region_ids = self.cells['TMA_core_2'].unique()
+        region_ids = self.cells['TMA_core_id'].unique()
         self.cells[['umap_train', 'umap_test']] = False
         for region_id, group in self.cells.groupby('Sample_number'):
             if group['area_filter'].sum() >= (n * 2):

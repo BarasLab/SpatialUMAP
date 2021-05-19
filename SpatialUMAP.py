@@ -116,6 +116,7 @@ class SpatialUMAP:
             self.cells.loc[idx, 'area_filter'] = filt
 
             if plots_directory is not None:
+                plt.ioff()
                 f = plt.figure(figsize=(3, 3))
                 plt.axes()
                 f.axes[0].cla()
@@ -128,6 +129,7 @@ class SpatialUMAP:
                 f.savefig('%s/%s.png' % (plots_directory, region_id), format='png')
                 plt.close(f)
                 del f
+                plt.ion()
 
     def get_counts(self, pool_size=2, save_file=None):
         self.clear_counts()
@@ -159,12 +161,6 @@ class SpatialUMAP:
                 idx_train, idx_test, _ = np.split(np.random.default_rng(seed).permutation(group['area_filter'].sum()), [n, n * 2])
                 self.cells.loc[group.index[group.area_filter][idx_train], 'umap_train'] = True
                 self.cells.loc[group.index[group.area_filter][idx_test], 'umap_test'] = True
-
-    def generate_umap(self):
-        # fit umap on training cells
-        self.umap_fit = umap.UMAP().fit(self.density[self.cells['umap_train'].values].reshape((self.cells['umap_train'].sum(), -1)))
-        # apply umap embedding on test cells
-        self.umap_test = self.umap_fit.transform(self.density[self.cells['umap_test'].values].reshape((self.cells['umap_test'].sum(), -1)))
 
 
 class FitEllipse:

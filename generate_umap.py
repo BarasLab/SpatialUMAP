@@ -38,8 +38,10 @@ spatial_umap.density[spatial_umap.cells['area_filter'].values] = spatial_umap.co
 
 # set training and "test" cells for umap training and embedding, respectively
 spatial_umap.set_train_test(n=2500, seed=54321)
-# generate umap fit and embedding on the "test" cells
-spatial_umap.generate_umap()
+# fit umap on training cells
+spatial_umap.umap_fit = umap.UMAP().fit(spatial_umap.density[spatial_umap.cells['umap_train'].values].reshape((spatial_umap.cells['umap_train'].sum(), -1)))
+# apply umap embedding on test cells
+spatial_umap.umap_test = spatial_umap.umap_fit.transform(spatial_umap.density[spatial_umap.cells['umap_test'].values].reshape((spatial_umap.cells['umap_test'].sum(), -1)))
 
 # save spatial_umap object as pickle
 pickle.dump(spatial_umap, open('data/spatial_umap.pkl', 'wb'))

@@ -42,4 +42,4 @@ spatial_umap.set_train_test(n=2500, seed=54321)
 spatial_umap.generate_umap()
 
 # save as pickle for plotting
-pickle.dump(spatial_umap, open('spatial_umap.pkl', 'wb'))
+pickle.dump(spatial_umap, open('data/spatial_umap.pkl', 'wb'))

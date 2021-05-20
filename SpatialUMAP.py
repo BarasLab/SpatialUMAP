@@ -70,10 +70,8 @@ class SpatialUMAP:
         self.pool = Pool(processes=processes)
 
     def close_pool(self):
-        if type(self.pool) is Pool:
-            print('MATCH')
-            self.pool.close()
-            del self.pool
+        self.pool.close()
+        del self.pool
 
     def process_region_counts(self, region_id):
         # get indices of cells from this region
@@ -125,7 +123,7 @@ class SpatialUMAP:
                 f.axes[0].plot(*self.cell_positions[idx][filt].T, 'b.', markersize=3, alpha=0.5)
                 f.axes[0].imshow(img_tissue_mask, alpha=0.5)
                 f.axes[0].axis('off')
-                plt.tight_layout(0.1)
+                plt.tight_layout(pad=0.1)
                 f.savefig('%s/%s.png' % (plots_directory, region_id), format='png')
                 plt.close(f)
                 del f
@@ -151,7 +149,7 @@ class SpatialUMAP:
         self.close_pool()
 
         if save_file is not None:
-            pd.DataFrame(self.areas, columns=self.dist_bin_um).to_csv('data/csv/areas.csv', index=False)
+            pd.DataFrame(self.areas, columns=self.dist_bin_um).to_csv(save_file, index=False)
 
     def set_train_test(self, n, seed=None):
         region_ids = self.cells['TMA_core_id'].unique()

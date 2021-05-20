@@ -3,7 +3,8 @@ from PlottingTools import *
 
 
 # load spatial_umap object
-spatial_umap = pickle.load(open('data/pickles/spatial_umap.pkl', 'rb'))
+data_dir = '/home/idies/workspace/Storage/baras/Melanoma'
+spatial_umap = pickle.load(open(data_dir + '/pkl/spatial_umap.pkl', 'rb'))
 
 # Spatial UMAP 2D Density Plots By Lineage and with PD-L1 and PD1 overlays
 
@@ -17,11 +18,11 @@ n_pad = 30
 f, ax = plt.subplots(4, 6, figsize=(12, 8), facecolor='white')
 
 # color maps
-cmap_viridis = plt.get_cmap('viridis')
+cmap_viridis = plt.get_cmap('viridis').copy()
 cmap_viridis.set_under('white')
-cmap_magma = plt.get_cmap('magma')
+cmap_magma = plt.get_cmap('magma').copy()
 cmap_magma.set_under('white')
-cmap_bwr = plt.get_cmap('bwr')
+cmap_bwr = plt.get_cmap('bwr').copy()
 
 # plot cmaps
 plt_cmap(ax=ax[1, 5], cmap=cmap_viridis, extend='max', width=0.01, ylabel='Density')
